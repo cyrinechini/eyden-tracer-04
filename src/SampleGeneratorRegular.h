@@ -1,12 +1,23 @@
 #pragma once
 
-#include "sampleGenerator.h"
+#include "SampleGenerator.h"
+#include <math.h>
 
 class CSampleGeneratorRegular : public CSampleGenerator
 {
 public:
 	virtual void getSamples(int n, float* u, float* v, float* weight) const override
 	{
-		// --- PUT YOUR CODE HERE ---
+		//((i+0.5)/m, (j+0.5)/n) for i,j=[0 .. m-1]
+        int m = std::sqrt(n);
+        int x;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < m; j++) {
+                x = i * m + j;
+                u[x] = (i + 0.5) / m;
+                v[x] = (j + 0.5) / n;
+                weight[x] = 1.0f / n;
+            }
+        }
 	}
 };

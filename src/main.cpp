@@ -25,35 +25,37 @@ Mat RenderFrame(void)
 	CScene scene;
 
 	// Load scene description 
-	scene.ParseOBJ("../data/cone32.obj");
+	scene.ParseOBJ("/Users/cyrinechini/Documents/GitHub/eyden-tracer-04/data/ground.obj");
+
+    
 //	scene.ParseOBJ("../data/barney.obj");
 //	scene.ParseOBJ("../data/ground.obj");
 
 #ifdef ENABLE_BSP
-	// Build BSPTree
+   // Build BSPTree
 	scene.BuildAccelStructure();
 #endif
 
 	// --- Scene description for 4.2 only ---
 
-	//auto shd1 = std::make_shared<CShaderPhongBumpMapped>(scene, RGB(1, 0, 0), 0.1f, 0.5f, 0.5f, 40); // red surface
-	//auto shd2 = std::make_shared<CShaderPhongBumpMapped>(scene, RGB(1, 1, 0), 0.1f, 0.5f, 0.5f, 40); // yellow surface
+/*	auto shd1 = std::make_shared<CShaderPhongBumpMapped>(scene, RGB(1, 0, 0), 0.1f, 0.5f, 0.5f, 40); // red surface
+	auto shd2 = std::make_shared<CShaderPhongBumpMapped>(scene, RGB(1, 1, 0), 0.1f, 0.5f, 0.5f, 40); // yellow surface
 	//
-	//auto shd3 = std::make_shared<CShaderPhong>(scene, RGB(0, 1, 1), 0.1f, 0.5f, 0.5f, 40); // cyan surface
-	//auto shd4 = std::make_shared<CShaderPhong>(scene, RGB(0, 0, 1), 0.1f, 0.5f, 0.5f, 40); // blue surface
+	auto shd3 = std::make_shared<CShaderPhong>(scene, RGB(0, 1, 1), 0.1f, 0.5f, 0.5f, 40); // cyan surface
+	auto shd4 = std::make_shared<CShaderPhong>(scene, RGB(0, 0, 1), 0.1f, 0.5f, 0.5f, 40); // blue surface
 	//
-	//scene.Add(std::make_shared<CPrimSphere>(Vec3f(-2, 1.7f, 0), 2, shd1));
-	//scene.Add(std::make_shared<CPrimSphere>(Vec3f(1, -1, 1), 2.2f, shd3));
-	//scene.Add(std::make_shared<CPrimSphere>(Vec3f(3, 0.8f, -2), 2, shd4));
-	//scene.Add(std::make_shared<CPrimPlane>(Vec3f(0, -1, 0), Vec3f(0, 1, 0), shd2));
+	scene.Add(std::make_shared<CPrimSphere>(Vec3f(-2, 1.7f, 0), 2, shd1));
+	scene.Add(std::make_shared<CPrimSphere>(Vec3f(1, -1, 1), 2.2f, shd3));
+	scene.Add(std::make_shared<CPrimSphere>(Vec3f(3, 0.8f, -2), 2, shd4));
+	scene.Add(std::make_shared<CPrimPlane>(Vec3f(0, -1, 0), Vec3f(0, 1, 0), shd2));
 	//
-	//Vec3f pointLightIntensity(7, 7, 7);
-	//Vec3f lightPosition2(-3, 5, 4);
-	//Vec3f lightPosition3(0, 1, 4);
+	Vec3f pointLightIntensity(7, 7, 7);
+	Vec3f lightPosition2(-3, 5, 4);
+	Vec3f lightPosition3(0, 1, 4);
 	//
-	//scene.Add(std::make_shared<CLightPoint>(pointLightIntensity, lightPosition2));
-	//scene.Add(std::make_shared<CLightPoint>(pointLightIntensity, lightPosition3));
-
+	scene.Add(std::make_shared<CLightPoint>(pointLightIntensity, lightPosition2));
+	scene.Add(std::make_shared<CLightPoint>(pointLightIntensity, lightPosition3));
+*/
 	// --- End description for 4.2 ---
 
 
@@ -62,17 +64,26 @@ Mat RenderFrame(void)
 
 
 #ifdef ENABLE_SUPERSAMPLING
-	auto sampleGenerator = std::make_unique<CSampleGeneratorRegular>();
+//	auto sampleGenerator = std::make_unique<CSampleGeneratorRegular>();
 //	auto sampleGenerator = std::make_unique<CSampleGeneratorRandom>();
-//	auto sampleGenerator = std::make_unique<CSampleGeneratorStratified>();
+	auto sampleGenerator = std::make_unique<CSampleGeneratorStratified>();
 	int nSamples = 16;
 
 	for (int y = 0; y < img.rows; y++) {
 		for (int x = 0; x < img.cols; x++) {
-			// --- PUT YOUR CODE HERE ---
+            float u[nSamples], v[nSamples], weight[nSamples];
+            Vec3f sum = 0;
+            sampleGenerator->getSamples(nSamples, u, v, weight);
+            for (int i = 0; i < nSamples; i++) {
+                scene.m_pCamera->InitRay(u[i] + x, v[i] + y, ray); // initialize ray
+                Vec3f color = scene.RayTrace(ray);
+                sum += color * weight[i];
+            }
+            img.at<Vec3f>(y, x) = sum;
 		}
 	}
 #else
+    //In your main loop, produce n samples, and fire n rays through the pixel at the respective sample position. The resulting color values must be weighted by weight[i] and summed up, which yields the final pixel result.
 	for (int y = 0; y < img.rows; y++)
 		for (int x = 0; x < img.cols; x++) {
 			scene.m_pCamera->InitRay(x, y, ray); // initialize ray

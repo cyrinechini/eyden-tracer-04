@@ -29,10 +29,10 @@ public:
 
 	virtual Vec3f getNormal(const Ray& ray) const override
 	{
-		// assume u/v coordinates in ray correspond to beta(u) and gamma(v) barycentric coordinates of 
+		// assume u/v coordinates in ray correspond to beta(u) and gamma(v) barycentric coordinates of
 		// hitpoint on triangle (have to be stored like this in the intersection code!)
-		// --- PUT YOUR CODE HERE ---
-		return Vec3f(1, 0, 0);
+        Vec3f n = normalize((ray.u * m_na) + (ray.v * m_nb) + ((1 - ray.u - ray.v) * m_nc));
+		return n;
 	}
 
 private:

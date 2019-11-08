@@ -20,8 +20,8 @@ public:
 	{
 		// assume u/v coordinates in ray correspond to beta(u) and gamma(v) barycentric coordinates of 
 		// hitpoint on triangle (have to be stored like this in the intersection code !)
-		// --- PUT YOUR CODE HERE ---
-		return Vec2f(0, 0);
+        
+		return m_tc * (1 - ray.u - ray.v) + m_tb * ray.v + m_ta * ray.u;
 	}
 
 
