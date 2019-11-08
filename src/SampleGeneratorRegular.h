@@ -8,7 +8,6 @@ class CSampleGeneratorRegular : public CSampleGenerator
 public:
 	virtual void getSamples(int n, float* u, float* v, float* weight) const override
 	{
-		//((i+0.5)/m, (j+0.5)/n) for i,j=[0 .. m-1]
         int m = std::sqrt(n);
         int x;
         for (int i = 0; i < m; i++) {
